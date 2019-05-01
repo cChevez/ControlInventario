@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Control de Inventario</string>
+    <string name="lbl_addProduct">Add Product</string>
+    <string name="btn_add">Add</string>
+    <string name="btn_back">Back</string>
+    <string name="lbl_createUser">Create User</string>
+    <string name="lbl_email">Email</string>
+    <string name="btn_exit">Exit</string>
+    <string name="lbl_login">Log In</string>
+    <string name="lbl_pass">Password</string>
+    <string name="lbl_productName">Product name</string>
+    <string name="lbl_productPrice">Product price</string>
+    <string name="lbl_productDescription">Product description</string>
+    <string name="lbl_productPhoto">Product image</string>
+    <string name="btn_signup">Sign Up</string>
+    <string name="lbl_username">Username</string>
+    <string name="lbl_showProducts">Show Products</string>
+    <string name="btn_logout">Log Out</string>
+</resources>
