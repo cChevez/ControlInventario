@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,8 +19,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView tvEmail;
-    TextView tvPass;
+    EditText tvEmail;
+    EditText tvPass;
     Button btnLogIn;
     Button btnSignUp;
     FirebaseAuth mAuth;
@@ -62,7 +63,11 @@ public class MainActivity extends AppCompatActivity {
         btnLogIn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                ingresar();
+                if(tvEmail.getText().length()!=0 || tvPass.getText().length()!=0){
+                    ingresar();
+                }else{
+                    Toast.makeText(getApplicationContext(), "Insert your email or password", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }

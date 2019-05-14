@@ -16,4 +16,6 @@
     <string name="lbl_username">Username</string>
     <string name="lbl_showProducts">Show Products</string>
     <string name="btn_logout">Log Out</string>
+    <string name="products_info">Products info</string>
+    <string name="btnDelete">Delete product</string>
 </resources>

@@ -97,6 +97,8 @@ public class SignUp extends AppCompatActivity {
                     progressDialog.dismiss();
                 }
             });
+        }else{
+            Toast.makeText(getApplicationContext(), "Fill the blanks", Toast.LENGTH_LONG).show();
         }
     }
 

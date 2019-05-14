@@ -19,7 +19,6 @@ public class Menu extends AppCompatActivity {
 
         btnAddProducts = findViewById(R.id.btnAddProduct);
         btnShowProducts = findViewById(R.id.btnShowProducts);
-        btnLogOut= findViewById(R.id.btnLogOut);
 
         btnAddProducts.setOnClickListener(new View.OnClickListener() {
             @Override

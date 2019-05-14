@@ -2,8 +2,10 @@ package com.example.controlinventario;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -29,12 +31,15 @@ public class AgregarProductos extends AppCompatActivity {
     Button btnAddImage;
     Button btnAddProduct;
     Button btnBack;
-    ImageButton image;
     DatabaseReference reference;
     Product product;
-    StorageReference storageReference;
     ProgressDialog progressDialog;
-    int Gallery_intent = 2;
+    int PICK_IMAGE_REQUEST = 111;
+    Uri filePath;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageRef = storage.getReferenceFromUrl("gs://inventario-21125.appspot.com/");    //change the url according to your firebase app
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,34 +56,14 @@ public class AgregarProductos extends AppCompatActivity {
         product = new Product();
         progressDialog = new ProgressDialog(this);
         progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Uploading");
 
         btnAddImage.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                openGallery();
-            }
-        });
-
-
-
-        btnAddProduct.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                String name = tvName.getText().toString();
-                int price = Integer.parseInt(tvPrice.getText().toString());
-                String description = tvDescription.getText().toString();
-
-                product.setName(name);
-                product.setPrice(price);
-                product.setDescription(description);
-                product.setImageAddress(storageReference.toString());
-
-                reference.push().setValue(product);
-                Toast.makeText(getApplicationContext(), "Product added succesfully", Toast.LENGTH_LONG).show();
-
-                tvName.setText("");
-                tvPrice.setText("");
-                tvDescription.setText("");
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(Intent.createChooser(intent, "Seleccionar Imagen"), PICK_IMAGE_REQUEST);
             }
         });
 
@@ -88,38 +73,67 @@ public class AgregarProductos extends AppCompatActivity {
                 volver();
             }
         });
-    }
 
+        btnAddProduct.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                if(filePath != null && tvName.getText().length()==0 && tvDescription.getText().length()==0 && tvPrice.getText().length()==0){
+                    final String name = tvName.getText().toString();
+                    int price = Integer.parseInt(tvPrice.getText().toString());
+                    String description = tvDescription.getText().toString();
 
-    private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent,Gallery_intent);
-    }
+                    product.setName(name);
+                    product.setPrice(price);
+                    product.setDescription(description);
+                    product.setImageAddress(storageRef.toString());
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == Gallery_intent && resultCode == RESULT_OK){
-            Uri uri = data.getData();
-            image.setImageURI(uri);
-            storageReference = FirebaseStorage.getInstance().getReference().child("Product").child(uri.getLastPathSegment());
-            storageReference.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    progressDialog.show();
+                    StorageReference childRef = storageRef.child(name + ".jpg");
+
+                    UploadTask uploadTask = childRef.putFile(filePath);
+                    uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressDialog.dismiss();
+                            reference.child(name).setValue(product);
+                            Toast.makeText(getApplicationContext(), "Product added succesfully", Toast.LENGTH_LONG).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "Can't upload the product", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }else {
+                    Toast.makeText(getApplicationContext(), "Fill the blanks and select a picture", Toast.LENGTH_LONG).show();
                 }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
 
-                }
-            });
-        }
+                tvName.setText("");
+                tvPrice.setText("");
+                tvDescription.setText("");
+            }
+        });
     }
 
     private void volver() {
         Intent i = new Intent(this, Menu.class);
         startActivity(i);
         finish();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            filePath= data.getData();
+            try{
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 }
